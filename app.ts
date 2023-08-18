@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 
 dotenv.config();
-
+// $env:PORT=5000 to set port
 const app: Express = express();
 const port = process.env.PORT||3002;
 console.log(port)
