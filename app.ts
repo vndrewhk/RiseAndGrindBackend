@@ -2,7 +2,7 @@ import express, { Express, Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import leetcodeRoutes from "./routes/leetcode-routes";
 import usersRoutes from "./routes/users-routes";
-import { ExpressError } from "./models/http-error";
+import { HttpError } from "./models/http-error";
 const app: Express = express();
 const port = process.env.PORT || 3002;
 
@@ -15,7 +15,7 @@ app.use("/api/user", usersRoutes);
 
 // error handling
 app.use(
-  (error: ExpressError, req: Request, res: Response, next: NextFunction) => {
+  (error: HttpError, req: Request, res: Response, next: NextFunction) => {
     if (res.headersSent) {
       // if headers (response has been sent)
       // won't send a response on our own
@@ -31,6 +31,8 @@ app.use(
 );
 
 app.listen(port);
+
+
 
 // // middleware, all incoming reqs go thru middleware
 

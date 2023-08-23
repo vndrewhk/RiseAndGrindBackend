@@ -1,5 +1,5 @@
 import express, { Express, Request, Response } from "express";
-import { ExpressError } from ".././models/http-error";
+import { HttpError } from ".././models/http-error";
 // obj that u can reg middleware on, and export it
 const router = express.Router();
 
@@ -58,7 +58,7 @@ router.get("/:userpId", (req: Request, res: Response, next) => {
   const userList: Object = testUsers.find((user) => user.userId === userId)!;
 
   if (!userList) {
-    const error: ExpressError = new Error(
+    const error: HttpError = new Error(
       "Could not find a user with specified ID"
     );
     error.statusCode = 404;

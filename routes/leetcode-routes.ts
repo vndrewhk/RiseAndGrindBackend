@@ -1,5 +1,5 @@
 import express, { Express, Request, Response } from "express";
-import { ExpressError } from ".././models/http-error";
+import { HttpError } from ".././models/http-error";
 // obj that u can reg middleware on, and export it
 const router = express.Router();
 
@@ -57,7 +57,7 @@ router.get("/:pTypeId", (req: Request, res: Response, next) => {
     (problemType) => problemType.pTypeId === problemTypeId
   )!;
   if (!problemList) {
-    const error: ExpressError = new Error(
+    const error: HttpError = new Error(
       "Could not find a problem type with specified ID"
     );
     error.statusCode = 404;

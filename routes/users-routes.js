@@ -58,7 +58,7 @@ router.get("/:userpId", (req, res, next) => {
     // that will be verified
     const userList = testUsers.find((user) => user.userId === userId);
     if (!userList) {
-        const error = new Error("Could not find a user with specified ID");
+       const error = new Error("Could not find a user with specified ID");
         error.statusCode = 404;
         return next(error);
     }
