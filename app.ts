@@ -2,12 +2,11 @@ import express, { Express, Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import leetcodeRoutes from "./routes/leetcode-routes";
 import usersRoutes from "./routes/users-routes";
+import { ExpressError } from "./models/http-error";
 const app: Express = express();
 const port = process.env.PORT || 3002;
 
-export interface ExpressError extends Error {
-  statusCode?: number;
-}
+
 
 // when putting filter on app.use ,it just means the path must start with it, not exactly match it
 // will only be sent to middleware if url starts with /api/leetcode/....

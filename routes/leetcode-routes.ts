@@ -1,5 +1,5 @@
 import express, { Express, Request, Response } from "express";
-import { ExpressError } from "../app";
+import { ExpressError } from ".././models/http-error";
 // obj that u can reg middleware on, and export it
 const router = express.Router();
 
