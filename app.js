@@ -12,6 +12,19 @@ const port = process.env.PORT || 3002;
 // will only be sent to middleware if url starts with /api/leetcode/....
 app.use("/api/leetcode", leetcode_routes_1.default);
 app.use("/api/user", users_routes_1.default);
+// error handling
+app.use((error, req, res, next) => {
+    if (res.headersSent) {
+        // if headers (response has been sent)
+        // won't send a response on our own
+        return next(error);
+    }
+    res.status(error.statusCode || 500);
+    res.json({
+        message: error.message ||
+            "The server encountered an unexpected condition that prevented it from fulfilling the request",
+    });
+});
 app.listen(port);
 // // middleware, all incoming reqs go thru middleware
 // // next is used when u dont want to return a response on this middleware

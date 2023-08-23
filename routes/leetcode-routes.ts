@@ -1,5 +1,5 @@
 import express, { Express, Request, Response } from "express";
-
+import { ExpressError } from "../app";
 // obj that u can reg middleware on, and export it
 const router = express.Router();
 
@@ -52,12 +52,18 @@ router.get("/:pTypeId", (req: Request, res: Response, next) => {
   console.log("got req in LC");
   console.log(problemTypeId);
 
-
   // by using || {}, we force an empty object to be returned if the returned val is falsey, ie undefined or empty
-  const problemList: Object =
-    testItems.find((problemType) => problemType.pTypeId === problemTypeId) ||
-    {};
-  res.json( {problemList} );
+  const problemList: Object = testItems.find(
+    (problemType) => problemType.pTypeId === problemTypeId
+  )!;
+  if (!problemList) {
+    const error: ExpressError = new Error(
+      "Could not find a problem type with specified ID"
+    );
+    error.statusCode = 404;
+    return next(error);
+  }
+  res.json({ problemList });
   //   res.json(testItems.filter((type) => type.pTypeId === problemTypeId));
 });
 

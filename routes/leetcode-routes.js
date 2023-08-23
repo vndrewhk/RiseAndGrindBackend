@@ -54,8 +54,12 @@ router.get("/:pTypeId", (req, res, next) => {
     console.log("got req in LC");
     console.log(problemTypeId);
     // by using || {}, we force an empty object to be returned if the returned val is falsey, ie undefined or empty
-    const problemList = testItems.find((problemType) => problemType.pTypeId === problemTypeId) ||
-        {};
+    const problemList = testItems.find((problemType) => problemType.pTypeId === problemTypeId);
+    if (!problemList) {
+        const error = new Error("Could not find a problem type with specified ID");
+        error.statusCode = 404;
+        return next(error);
+    }
     res.json({ problemList });
     //   res.json(testItems.filter((type) => type.pTypeId === problemTypeId));
 });
