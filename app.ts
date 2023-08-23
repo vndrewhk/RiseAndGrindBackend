@@ -6,33 +6,32 @@ import { HttpError } from "./models/http-error";
 const app: Express = express();
 const port = process.env.PORT || 3002;
 
-
-
 // when putting filter on app.use ,it just means the path must start with it, not exactly match it
 // will only be sent to middleware if url starts with /api/leetcode/....
+app.use(express.json());
 app.use("/api/leetcode", leetcodeRoutes);
 app.use("/api/user", usersRoutes);
-
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const error: HttpError = new Error("Could not find this resource");
+  error.statusCode = 404;
+  return next(error);
+});
 // error handling
-app.use(
-  (error: HttpError, req: Request, res: Response, next: NextFunction) => {
-    if (res.headersSent) {
-      // if headers (response has been sent)
-      // won't send a response on our own
-      return next(error);
-    }
-    res.status(error.statusCode || 500);
-    res.json({
-      message:
-        error.message ||
-        "The server encountered an unexpected condition that prevented it from fulfilling the request",
-    });
+app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
+  if (res.headersSent) {
+    // if headers (response has been sent)
+    // won't send a response on our own
+    return next(error);
   }
-);
+  res.status(error.statusCode || 500);
+  res.json({
+    message:
+      error.message ||
+      "The server encountered an unexpected condition that prevented it from fulfilling the request",
+  });
+});
 
 app.listen(port);
-
-
 
 // // middleware, all incoming reqs go thru middleware
 

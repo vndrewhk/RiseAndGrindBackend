@@ -9,5 +9,6 @@ const leetcode_controllers_1 = require("../controllers/leetcode-controllers");
 const router = express_1.default.Router();
 // will have to add ID to the problems eventually
 router.get("/:pTypeId", leetcode_controllers_1.getProblemTypeById);
+router.post("/", leetcode_controllers_1.createSolutionById);
 // export default router;
 exports.default = router;

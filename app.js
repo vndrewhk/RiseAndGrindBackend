@@ -10,8 +10,14 @@ const app = (0, express_1.default)();
 const port = process.env.PORT || 3002;
 // when putting filter on app.use ,it just means the path must start with it, not exactly match it
 // will only be sent to middleware if url starts with /api/leetcode/....
+app.use(express_1.default.json());
 app.use("/api/leetcode", leetcode_routes_1.default);
 app.use("/api/user", users_routes_1.default);
+app.use((req, res, next) => {
+    const error = new Error("Could not find this resource");
+    error.statusCode = 404;
+    return next(error);
+});
 // error handling
 app.use((error, req, res, next) => {
     if (res.headersSent) {

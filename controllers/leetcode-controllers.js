@@ -1,12 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProblemTypeById = void 0;
+exports.createSolutionById = exports.getProblemTypeById = void 0;
+const uuid_1 = require("uuid");
 let testItems = [
     {
         pTypeId: "1",
         problemType: "Arrays & Hashing",
         problems: [
             {
+                // needs id
                 solved: false,
                 name: "Contains Duplicate",
                 difficulty: "Easy",
@@ -58,3 +60,16 @@ let getProblemTypeById = (req, res, next) => {
     //   res.json(testItems.filter((type) => type.pTypeId === problemTypeId));
 };
 exports.getProblemTypeById = getProblemTypeById;
+let createSolutionById = (req, res, next) => {
+    const { user, userId, problemId, ytUrl } = req.body;
+    const createdSolution = {
+        user,
+        userId,
+        problemId,
+        solutionId: (0, uuid_1.v4)(),
+        ytUrl,
+    };
+    console.log(createdSolution);
+    res.status(201).json({ solution: createdSolution });
+};
+exports.createSolutionById = createSolutionById;
