@@ -128,7 +128,7 @@ let patchSolution = (req, res, next) => {
     console.log(typeof problemId);
     console.log("hi");
     // finds the problem type it belongs to
-    const problemType = testItems.find((problem) => (problem.pTypeId === pTypeId));
+    const problemType = testItems.find((problem) => problem.pTypeId === pTypeId);
     // console.log(problemType);
     // finds the exact problem it belongs to
     // uses ! because we must validate if it exists
@@ -144,5 +144,8 @@ let patchSolution = (req, res, next) => {
     res.status(200).json({ solution: updatedSolution });
 };
 exports.patchSolution = patchSolution;
-let deleteSolution = (req, res, next) => { };
+let deleteSolution = (req, res, next) => {
+    // removes all items that are falsey
+    testItems = testItems.filter((problem) => true);
+};
 exports.deleteSolution = deleteSolution;

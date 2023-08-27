@@ -6,10 +6,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const leetcode_routes_1 = __importDefault(require("./routes/leetcode-routes"));
 const users_routes_1 = __importDefault(require("./routes/users-routes"));
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+dotenv.config();
+const dbconfig = require("./db/config");
+const url = dbconfig.url;
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3002;
 // when putting filter on app.use ,it just means the path must start with it, not exactly match it
 // will only be sent to middleware if url starts with /api/leetcode/....
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    // res.setHeader('Access-Control-Allow-Headers','*')
+    res.setHeader("Access-Control-Allow-Headers", "*"
+    // "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+    res.setHeader("Access-Control-Allow-Methods", "*"
+    // "GET, POST, PATCH, DELETE, PUT"
+    );
+    next();
+});
 app.use(express_1.default.json());
 app.use("/api/leetcode", leetcode_routes_1.default);
 app.use("/api/user", users_routes_1.default);
@@ -31,7 +48,16 @@ app.use((error, req, res, next) => {
             "The server encountered an unexpected condition that prevented it from fulfilling the request",
     });
 });
-app.listen(port);
+mongoose
+    .connect(url)
+    .then(() => {
+    app.listen(port);
+})
+    .then(() => {
+    console.log("Connected and started");
+})
+    .catch((error) => console.error("Connection error", error));
+// app.listen(port);
 // // middleware, all incoming reqs go thru middleware
 // // next is used when u dont want to return a response on this middleware
 // // but u want to funnel it to the next middleware

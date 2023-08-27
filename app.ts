@@ -1,13 +1,37 @@
 import express, { Express, Request, Response, NextFunction } from "express";
-import bodyParser from "body-parser";
 import leetcodeRoutes from "./routes/leetcode-routes";
 import usersRoutes from "./routes/users-routes";
 import { HttpError } from "./models/http-error";
+
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+dotenv.config();
+const dbconfig = require("./db/config");
+const url = dbconfig.url;
+
 const app: Express = express();
 const port = process.env.PORT || 3002;
 
 // when putting filter on app.use ,it just means the path must start with it, not exactly match it
 // will only be sent to middleware if url starts with /api/leetcode/....
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  // res.setHeader('Access-Control-Allow-Headers','*')
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "*"
+    // "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "*"
+    // "GET, POST, PATCH, DELETE, PUT"
+  );
+  next();
+});
+
 app.use(express.json());
 app.use("/api/leetcode", leetcodeRoutes);
 app.use("/api/user", usersRoutes);
@@ -31,7 +55,17 @@ app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
-app.listen(port);
+mongoose
+  .connect(url)
+  .then(() => {
+    app.listen(port);
+  })
+  .then(() => {
+    console.log("Connected and started");
+  })
+  .catch((error: HttpError) => console.error("Connection error", error));
+
+// app.listen(port);
 
 // // middleware, all incoming reqs go thru middleware
 

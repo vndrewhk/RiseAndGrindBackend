@@ -161,7 +161,7 @@ export let patchSolution = (
   console.log(typeof problemId);
   console.log("hi");
   // finds the problem type it belongs to
-  const problemType = testItems.find((problem) => (problem.pTypeId === pTypeId));
+  const problemType = testItems.find((problem) => problem.pTypeId === pTypeId);
   // console.log(problemType);
   // finds the exact problem it belongs to
   // uses ! because we must validate if it exists
@@ -189,4 +189,7 @@ export let deleteSolution = (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+  // removes all items that are falsey
+  testItems = testItems.filter((problem) => true);
+};
