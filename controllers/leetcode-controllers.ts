@@ -1,8 +1,10 @@
 import express, { Express, NextFunction, Request, Response } from "express";
-import { HttpError } from ".././models/http-error";
-
+import { HttpError, HttpErrorConstructor } from ".././models/http-error";
 import { v4 as uuidv4 } from "uuid";
 import { test } from "node:test";
+import { solutionModel } from "../models/solution";
+import { Document } from "mongoose";
+
 let testItems = [
   {
     pTypeId: "1",
@@ -80,7 +82,7 @@ let testItems = [
 ];
 
 export let getProblems = (req: Request, res: Response, next: NextFunction) => {
-  res.json(testItems);
+  return next(HttpErrorConstructor("Could not find solution", 500));
 };
 
 export let getProblemTypeById = (
@@ -107,45 +109,69 @@ export let getProblemTypeById = (
   //   res.json(testItems.filter((type) => type.pTypeId === problemTypeId));
 };
 
-export let createSolutionById = (
+export let getSolutions = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
+
+export let getSolutionById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const solutionId = req.params.solutionId;
+  let solution: Document | null;
+  try {
+    solution = await solutionModel.findById(solutionId);
+  } catch (err) {
+    return next(HttpErrorConstructor("Could not find a solution", 500));
+  }
+
+  if (!solution) {
+    return next(HttpErrorConstructor("Could not find a solution", 404));
+  }
+
+  // by calling getters, we instantiate an id on the object
+  res.json({ solution: solution.toObject({ getters: true }) });
+};
+
+export let createSolutionById = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { user, userId, ytUrl, description } = req.body;
 
-  const pTypeId: string = req.params.pTypeId;
-  const problemId: string = req.params.problemId;
+  // const pTypeId: string = req.params.pTypeId;
+  // const problemId: string = req.params.problemId;
 
-  const createdSolution: {
-    user: string;
-    userId: string;
-    ytUrl: string;
-    description: string;
-    solutionId: string;
-  } = {
+  const createdSolution = new solutionModel({
     user,
     userId,
     ytUrl,
     description,
-    solutionId: uuidv4(),
-  };
+  });
 
-  // finds the problem type it belongs to
-  const problemType = testItems.find((problem) => (problem.pTypeId = pTypeId));
-
-  // finds the exact problem it belongs to
-  // uses ! because we must validate if it exists
-  const problem = problemType?.problems.find(
-    (problem) => problem.id === problemId
-  )!;
-  if (problem) {
-    problem.solutions.push(createdSolution);
+  try {
+    await createdSolution.save();
+  } catch (error) {
+    console.error("Connection error", error);
   }
 
-  console.log(createdSolution);
-  console.log(testItems);
-  res.status(201).json({ testItems });
+  // finds the problem type it belongs to
+  // const problemType = testItems.find((problem) => (problem.pTypeId = pTypeId));
+
+  // // finds the exact problem it belongs to
+  // // uses ! because we must validate if it exists
+  // const problem = problemType?.problems.find(
+  //   (problem) => problem.id === problemId
+  // )!;
+  // if (problem) {
+  //   problem.solutions.push(createdSolution);
+  // }
+
+  res.status(201).json({ createdSolution });
 };
 
 export let patchSolution = (

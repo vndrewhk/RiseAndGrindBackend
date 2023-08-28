@@ -1,7 +1,17 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteSolution = exports.patchSolution = exports.createSolutionById = exports.getProblemTypeById = exports.getProblems = void 0;
-const uuid_1 = require("uuid");
+exports.deleteSolution = exports.patchSolution = exports.createSolutionById = exports.getSolutionById = exports.getSolutions = exports.getProblemTypeById = exports.getProblems = void 0;
+const http_error_1 = require(".././models/http-error");
+const solution_1 = require("../models/solution");
 let testItems = [
     {
         pTypeId: "1",
@@ -78,7 +88,7 @@ let testItems = [
     },
 ];
 let getProblems = (req, res, next) => {
-    res.json(testItems);
+    return next((0, http_error_1.HttpErrorConstructor)("Could not find solution", 500));
 };
 exports.getProblems = getProblems;
 let getProblemTypeById = (req, res, next) => {
@@ -96,29 +106,52 @@ let getProblemTypeById = (req, res, next) => {
     //   res.json(testItems.filter((type) => type.pTypeId === problemTypeId));
 };
 exports.getProblemTypeById = getProblemTypeById;
-let createSolutionById = (req, res, next) => {
+let getSolutions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () { });
+exports.getSolutions = getSolutions;
+let getSolutionById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const solutionId = req.params.solutionId;
+    let solution;
+    try {
+        solution = yield solution_1.solutionModel.findById(solutionId);
+    }
+    catch (err) {
+        return next((0, http_error_1.HttpErrorConstructor)("Could not find a solution", 500));
+    }
+    if (!solution) {
+        return next((0, http_error_1.HttpErrorConstructor)("Could not find a solution", 404));
+    }
+    // by calling getters, we instantiate an id on the object
+    res.json({ solution: solution.toObject({ getters: true }) });
+});
+exports.getSolutionById = getSolutionById;
+let createSolutionById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { user, userId, ytUrl, description } = req.body;
-    const pTypeId = req.params.pTypeId;
-    const problemId = req.params.problemId;
-    const createdSolution = {
+    // const pTypeId: string = req.params.pTypeId;
+    // const problemId: string = req.params.problemId;
+    const createdSolution = new solution_1.solutionModel({
         user,
         userId,
         ytUrl,
         description,
-        solutionId: (0, uuid_1.v4)(),
-    };
-    // finds the problem type it belongs to
-    const problemType = testItems.find((problem) => (problem.pTypeId = pTypeId));
-    // finds the exact problem it belongs to
-    // uses ! because we must validate if it exists
-    const problem = problemType === null || problemType === void 0 ? void 0 : problemType.problems.find((problem) => problem.id === problemId);
-    if (problem) {
-        problem.solutions.push(createdSolution);
+    });
+    try {
+        yield createdSolution.save();
     }
-    console.log(createdSolution);
-    console.log(testItems);
-    res.status(201).json({ testItems });
-};
+    catch (error) {
+        console.error("Connection error", error);
+    }
+    // finds the problem type it belongs to
+    // const problemType = testItems.find((problem) => (problem.pTypeId = pTypeId));
+    // // finds the exact problem it belongs to
+    // // uses ! because we must validate if it exists
+    // const problem = problemType?.problems.find(
+    //   (problem) => problem.id === problemId
+    // )!;
+    // if (problem) {
+    //   problem.solutions.push(createdSolution);
+    // }
+    res.status(201).json({ createdSolution });
+});
 exports.createSolutionById = createSolutionById;
 let patchSolution = (req, res, next) => {
     const { ytUrl, description } = req.body;
