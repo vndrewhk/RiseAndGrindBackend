@@ -55,6 +55,7 @@ app.use((error: HttpError, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
+// starts server upon db connection
 mongoose
   .connect(url)
   .then(() => {

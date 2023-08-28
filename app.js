@@ -48,6 +48,7 @@ app.use((error, req, res, next) => {
             "The server encountered an unexpected condition that prevented it from fulfilling the request",
     });
 });
+// starts server upon db connection
 mongoose
     .connect(url)
     .then(() => {
