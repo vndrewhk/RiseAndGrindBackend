@@ -9,7 +9,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const problemSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     difficulty: { type: String, required: true },
-    solutions: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: "Solution" }],
+    solutions: [{ type: mongoose_1.default.Types.ObjectId, ref: "Solution" }],
 });
 // model placed on schema to be able to be used
 // convention is to use uppercase char, singular

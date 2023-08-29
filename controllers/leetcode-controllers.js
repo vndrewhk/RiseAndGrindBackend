@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteSolution = exports.patchSolution = exports.createSolutionById = exports.getSolutionById = exports.getSolutions = exports.getProblemTypeById = exports.getProblems = void 0;
+exports.deleteSolution = exports.patchSolution = exports.deleteSolutionById = exports.createSolutionById = exports.getSolutionByUser = exports.getSolutionById = exports.getSolutions = exports.getProblemTypeById = exports.getProblems = void 0;
 const http_error_1 = require(".././models/http-error");
 const solution_1 = require("../models/solution");
 let testItems = [
@@ -124,6 +124,23 @@ let getSolutionById = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     res.json({ solution: solution.toObject({ getters: true }) });
 });
 exports.getSolutionById = getSolutionById;
+let getSolutionByUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params.userId;
+    let solutions;
+    try {
+        solutions = yield solution_1.solutionModel.find({ userId: userId });
+    }
+    catch (err) {
+        return next((0, http_error_1.HttpErrorConstructor)("Could not find a solution", 500));
+    }
+    if (!solutions || solutions.length === 0) {
+        return next((0, http_error_1.HttpErrorConstructor)("Could not find a solution", 404));
+    }
+    res.json({
+        solutions: solutions.map((place) => place.toObject({ getters: true })),
+    });
+});
+exports.getSolutionByUser = getSolutionByUser;
 let createSolutionById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { user, userId, ytUrl, description } = req.body;
     // const pTypeId: string = req.params.pTypeId;
@@ -153,6 +170,27 @@ let createSolutionById = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     res.status(201).json({ createdSolution });
 });
 exports.createSolutionById = createSolutionById;
+let deleteSolutionById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    let solutionId = req.params.solutionId;
+    let solution;
+    try {
+        solution = yield solution_1.solutionModel.findById(solutionId);
+    }
+    catch (err) {
+        return next((0, http_error_1.HttpErrorConstructor)("Could not find a solution", 500));
+    }
+    if (!solution) {
+        return next((0, http_error_1.HttpErrorConstructor)("Could not find a solution", 404));
+    }
+    try {
+        yield solution.deleteOne();
+    }
+    catch (err) {
+        return next((0, http_error_1.HttpErrorConstructor)("Could not delete solution", 500));
+    }
+    res.status(200).json({ message: "Deleted solution" });
+});
+exports.deleteSolutionById = deleteSolutionById;
 let patchSolution = (req, res, next) => {
     const { ytUrl, description } = req.body;
     const pTypeId = req.params.pTypeId;

@@ -136,6 +136,27 @@ export let getSolutionById = async (
   res.json({ solution: solution.toObject({ getters: true }) });
 };
 
+export let getSolutionByUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const userId = req.params.userId;
+  let solutions: Document[] | null;
+  try {
+    solutions = await solutionModel.find({ userId: userId });
+  } catch (err) {
+    return next(HttpErrorConstructor("Could not find a solution", 500));
+  }
+
+  if (!solutions || solutions.length === 0) {
+    return next(HttpErrorConstructor("Could not find a solution", 404));
+  }
+  res.json({
+    solutions: solutions.map((place) => place.toObject({ getters: true })),
+  });
+};
+
 export let createSolutionById = async (
   req: Request,
   res: Response,
@@ -172,6 +193,33 @@ export let createSolutionById = async (
   // }
 
   res.status(201).json({ createdSolution });
+};
+
+export let deleteSolutionById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let solutionId = req.params.solutionId;
+  let solution: Document | null
+
+  try {
+    solution = await solutionModel.findById(solutionId);
+  } catch (err) {
+    return next(HttpErrorConstructor("Could not find a solution", 500));
+  }
+
+  if (!solution) {
+    return next(HttpErrorConstructor("Could not find a solution", 404));
+  }
+
+  try {
+    await solution.deleteOne()
+  } catch (err) {
+    return next(HttpErrorConstructor("Could not delete solution", 500));
+  }
+
+  res.status(200).json({message:"Deleted solution"})
 };
 
 export let patchSolution = (

@@ -4,7 +4,7 @@ import {
   getProblemTypeById,
   createSolutionById,
   patchSolution,
-  deleteSolution,
+  deleteSolutionById,
   getProblems,
   getSolutionById,
 } from "../controllers/leetcode-controllers";
@@ -19,7 +19,7 @@ router.get("/solution/:solutionId", getSolutionById);
 router.post("/", createSolutionById);
 
 router.patch("/:pTypeId/:problemId/:solutionId", patchSolution);
-router.delete("/:pTypeId/:problemId", deleteSolution);
+router.post("/delete/:solutionId", deleteSolutionById);
 
 // export default router;
 

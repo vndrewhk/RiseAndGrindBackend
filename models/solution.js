@@ -8,7 +8,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 // bp for doc
 const solutionSchema = new mongoose_1.default.Schema({
     user: { type: String, required: true },
-    userId: { type: String, required: true },
+    userId: { type: mongoose_1.default.Types.ObjectId, required: true, ref: "User" },
     description: { type: String },
     ytUrl: { type: String },
 }, { timestamps: true });

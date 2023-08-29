@@ -4,7 +4,7 @@ import mongoose, { Model, Schema } from "mongoose";
 const problemSchema: Schema = new mongoose.Schema({
   name: { type: String, required: true },
   difficulty: { type: String, required: true },
-  solutions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Solution" }],
+  solutions: [{ type: mongoose.Types.ObjectId, ref: "Solution" }],
 });
 
 // model placed on schema to be able to be used

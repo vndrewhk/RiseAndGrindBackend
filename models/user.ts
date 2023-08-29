@@ -2,11 +2,8 @@ import mongoose, { Model, Schema } from "mongoose";
 
 // bp for doc
 const userSchema: Schema = new mongoose.Schema({
-  user: { type: String, required: true },
-  userId: { type: String, required: true },
-  description: { type: String },
-  ytUrl: { type: String },
-  solutionId: { type: String, required: true },
+  name: { type: String, required: true },
+  solutions: { type: mongoose.Types.ObjectId, required: true, ref: "Solution" },
 });
 
 // model placed on schema to be able to be used

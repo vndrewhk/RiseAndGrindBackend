@@ -13,7 +13,7 @@ router.get("/:pTypeId", leetcode_controllers_1.getProblemTypeById);
 router.get("/solution/:solutionId", leetcode_controllers_1.getSolutionById);
 router.post("/", leetcode_controllers_1.createSolutionById);
 router.patch("/:pTypeId/:problemId/:solutionId", leetcode_controllers_1.patchSolution);
-router.delete("/:pTypeId/:problemId", leetcode_controllers_1.deleteSolution);
+router.post("/delete/:solutionId", leetcode_controllers_1.deleteSolutionById);
 // export default router;
 // group of problems with identifier attached to it instead of problemTypes
 // array of identifiers ["Arrays","DP"], use identifier as index

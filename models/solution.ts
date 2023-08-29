@@ -1,10 +1,11 @@
 import mongoose, { Model, Schema } from "mongoose";
+import { userModel } from "./user";
 
 // bp for doc
 const solutionSchema: Schema = new mongoose.Schema(
   {
     user: { type: String, required: true },
-    userId: { type: String, required: true },
+    userId: { type: mongoose.Types.ObjectId, required: true, ref: "User" },
     description: { type: String },
     ytUrl: { type: String },
   },
