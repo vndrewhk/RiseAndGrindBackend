@@ -7,16 +7,18 @@ import {
   deleteSolutionById,
   getProblems,
   getSolutionById,
+  createProblem,
 } from "../controllers/leetcode-controllers";
 // obj that u can reg middleware on, and export it
 const router = express.Router();
 
 // will have to add ID to the problems eventually
 router.get("/", getProblems);
+router.post("/createProblem", createProblem);
 router.get("/:pTypeId", getProblemTypeById);
 
-router.get("/solution/:solutionId", getSolutionById);
-router.post("/", createSolutionById);
+router.get("/getSolution/:solutionId", getSolutionById);
+router.post("/createSolution/:problemId", createSolutionById);
 
 router.patch("/:pTypeId/:problemId/:solutionId", patchSolution);
 router.post("/delete/:solutionId", deleteSolutionById);

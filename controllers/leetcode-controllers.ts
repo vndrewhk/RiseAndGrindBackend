@@ -2,8 +2,9 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import { HttpError, HttpErrorConstructor } from ".././models/http-error";
 import { v4 as uuidv4 } from "uuid";
 import { test } from "node:test";
-import { solutionModel } from "../models/solution";
-import { Document } from "mongoose";
+import { SolutionDocument, solutionModel } from "../models/solution";
+import mongoose, { Document } from "mongoose";
+import { problemModel } from "../models/problem";
 
 let testItems = [
   {
@@ -109,6 +110,27 @@ export let getProblemTypeById = (
   //   res.json(testItems.filter((type) => type.pTypeId === problemTypeId));
 };
 
+export let createProblem = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { name, difficulty, problemType } = req.body;
+  let createdProblem = new problemModel({
+    name,
+    difficulty,
+    problemType,
+    solutions: [],
+  });
+
+  try {
+    await createdProblem.save();
+  } catch (err) {
+    throw next(HttpErrorConstructor("Could not create problem", 500));
+  }
+  res.status(201).json({ createdProblem });
+};
+
 export let getSolutions = async (
   req: Request,
   res: Response,
@@ -165,32 +187,39 @@ export let createSolutionById = async (
   const { user, userId, ytUrl, description } = req.body;
 
   // const pTypeId: string = req.params.pTypeId;
-  // const problemId: string = req.params.problemId;
-
+  const problemId: string = req.params.problemId;
+  let problem;
   const createdSolution = new solutionModel({
     user,
     userId,
     ytUrl,
     description,
+    problem: problemId,
   });
+  try {
+    problem = await problemModel.findById(problemId);
+  } catch (err) {
+    return next(
+      HttpErrorConstructor("Creating solution failed, please try again", 500)
+    );
+  }
+
+  if (!problem) {
+    return next(HttpErrorConstructor("Could not find parent problem", 404));
+  }
 
   try {
-    await createdSolution.save();
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    await createdSolution.save({ session });
+    // mongoose specific push
+    problem.solutions.push(createdSolution);
+    await problem.save({ session });
+    await session.commitTransaction();
   } catch (error) {
     console.error("Connection error", error);
   }
-
-  // finds the problem type it belongs to
-  // const problemType = testItems.find((problem) => (problem.pTypeId = pTypeId));
-
-  // // finds the exact problem it belongs to
-  // // uses ! because we must validate if it exists
-  // const problem = problemType?.problems.find(
-  //   (problem) => problem.id === problemId
-  // )!;
-  // if (problem) {
-  //   problem.solutions.push(createdSolution);
-  // }
 
   res.status(201).json({ createdSolution });
 };
@@ -201,10 +230,12 @@ export let deleteSolutionById = async (
   next: NextFunction
 ) => {
   let solutionId = req.params.solutionId;
-  let solution: Document | null
+  let solution: any;
 
   try {
-    solution = await solutionModel.findById(solutionId);
+    solution = (await solutionModel
+      .findById(solutionId)
+      .populate("problem")) as SolutionDocument;
   } catch (err) {
     return next(HttpErrorConstructor("Could not find a solution", 500));
   }
@@ -214,12 +245,17 @@ export let deleteSolutionById = async (
   }
 
   try {
-    await solution.deleteOne()
+    let session = await mongoose.startSession();
+    session.startTransaction();
+    await solution.deleteOne({ session });
+    solution.problem.solutions.pull(solution);
+    await solution.problem.save({ session });
+    session.commitTransaction();
   } catch (err) {
     return next(HttpErrorConstructor("Could not delete solution", 500));
   }
 
-  res.status(200).json({message:"Deleted solution"})
+  res.status(200).json({ message: "Deleted solution" });
 };
 
 export let patchSolution = (
@@ -257,13 +293,4 @@ export let patchSolution = (
   updatedSolution.description = description;
 
   res.status(200).json({ solution: updatedSolution });
-};
-
-export let deleteSolution = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  // removes all items that are falsey
-  testItems = testItems.filter((problem) => true);
 };

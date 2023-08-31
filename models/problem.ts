@@ -1,8 +1,9 @@
 import mongoose, { Model, Schema } from "mongoose";
-
+import { solutionModel } from "./solution";
 // bp for doc
 const problemSchema: Schema = new mongoose.Schema({
   name: { type: String, required: true },
+  problemType: { type: Number, required: true },
   difficulty: { type: String, required: true },
   solutions: [{ type: mongoose.Types.ObjectId, ref: "Solution" }],
 });

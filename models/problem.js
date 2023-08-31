@@ -8,6 +8,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 // bp for doc
 const problemSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
+    problemType: { type: Number, required: true },
     difficulty: { type: String, required: true },
     solutions: [{ type: mongoose_1.default.Types.ObjectId, ref: "Solution" }],
 });

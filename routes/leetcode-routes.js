@@ -9,9 +9,10 @@ const leetcode_controllers_1 = require("../controllers/leetcode-controllers");
 const router = express_1.default.Router();
 // will have to add ID to the problems eventually
 router.get("/", leetcode_controllers_1.getProblems);
+router.post("/createProblem", leetcode_controllers_1.createProblem);
 router.get("/:pTypeId", leetcode_controllers_1.getProblemTypeById);
-router.get("/solution/:solutionId", leetcode_controllers_1.getSolutionById);
-router.post("/", leetcode_controllers_1.createSolutionById);
+router.get("/getSolution/:solutionId", leetcode_controllers_1.getSolutionById);
+router.post("/createSolution/:problemId", leetcode_controllers_1.createSolutionById);
 router.patch("/:pTypeId/:problemId/:solutionId", leetcode_controllers_1.patchSolution);
 router.post("/delete/:solutionId", leetcode_controllers_1.deleteSolutionById);
 // export default router;
